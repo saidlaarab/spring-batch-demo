@@ -8,8 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
-@Component
-public class BankTransactionProcessor implements ItemProcessor<BankTransaction, BankTransaction> {
+public class BankTransactionDataLoaderProcessor implements ItemProcessor<BankTransaction, BankTransaction> {
     @Override
     public BankTransaction process(BankTransaction bankTransaction) throws Exception {
         String dateStr = bankTransaction.getTransactionDateStr();

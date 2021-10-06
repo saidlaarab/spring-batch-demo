@@ -18,6 +18,9 @@ public class JobRestController {
     @Autowired
     private Job job;
 
+    @Autowired
+    private BankTransactionAnalyticsProcessor analyticsProcessor;
+
 
     @GetMapping("/start_job")
     public BatchStatus startJobLoadingData() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
@@ -32,5 +35,15 @@ public class JobRestController {
         }
 
         return jobExecution.getStatus();
+    }
+
+    @GetMapping("/analytics")
+    public Map<String, Double> analytics(){
+        Map<String, Double> analytics = new HashMap<>();
+
+        analytics.put("totalCredit", analyticsProcessor.getTotalCredit());
+        analytics.put("totalDebit", analyticsProcessor.getTotalDebit());
+
+        return analytics;
     }
 }
