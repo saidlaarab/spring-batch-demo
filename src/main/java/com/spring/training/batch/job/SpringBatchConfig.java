@@ -1,6 +1,6 @@
-package configuration;
+package com.spring.training.batch.job;
 
-import model.BankTransaction;
+import com.spring.training.batch.model.BankTransaction;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -35,6 +35,8 @@ public class SpringBatchConfig {
     @Autowired
     private ItemProcessor<BankTransaction, BankTransaction> bankTransactionItemProcessor;
 
+
+    @Bean
     public Job bankJob(){
         Step dataLoadingStep = stepBuilderFactory.get("load-data-step")
                 .<BankTransaction, BankTransaction>chunk(100)
@@ -49,7 +51,7 @@ public class SpringBatchConfig {
     }
 
     @Bean
-    public FlatFileItemReader<BankTransaction> bankTransactionFlatFileItemReader(@Value("${input.fileP.path}") Resource resource ){
+    public FlatFileItemReader<BankTransaction> bankTransactionFlatFileItemReader(@Value("${input.file.path}") Resource resource ){
         FlatFileItemReader<BankTransaction> flatFileItemReader = new FlatFileItemReader<>();
         flatFileItemReader.setName("Bank_Transaction_FFIR");
         flatFileItemReader.setResource(resource);

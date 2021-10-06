@@ -1,6 +1,6 @@
-package dao;
+package com.spring.training.batch.dao;
 
-import model.BankTransaction;
+import com.spring.training.batch.model.BankTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BankTransactionRepository extends JpaRepository<BankTransaction, Long> {

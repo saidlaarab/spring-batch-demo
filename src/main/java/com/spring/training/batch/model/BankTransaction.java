@@ -1,10 +1,9 @@
-package model;
+package com.spring.training.batch.model;
 
 import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.Date;
 
