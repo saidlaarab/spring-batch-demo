@@ -6,20 +6,19 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.extensions.excel.RowMapper;
+import org.springframework.batch.extensions.excel.mapping.BeanWrapperRowMapper;
+import org.springframework.batch.extensions.excel.poi.PoiItemReader;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.LineMapper;
-import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
-import org.springframework.batch.item.file.mapping.DefaultLineMapper;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.ClassPathResource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,33 +52,23 @@ public class SpringBatchConfig {
     }
 
     @Bean
-    public FlatFileItemReader<BankTransaction> bankTransactionFlatFileItemReader(@Value("${input.file.path}") Resource resource ){
-        FlatFileItemReader<BankTransaction> flatFileItemReader = new FlatFileItemReader<>();
-        flatFileItemReader.setName("Bank_Transaction_FFIR");
-        flatFileItemReader.setResource(resource);
-        flatFileItemReader.setLinesToSkip(1);
-        flatFileItemReader.setLineMapper(bankTransactionlineMapper());
+    public ItemReader<BankTransaction> bankTransactionExcelFileItemReader(@Value("${input.file.path}") String filePath ){
+        PoiItemReader<BankTransaction> itemReader = new PoiItemReader<>();
 
-        return flatFileItemReader;
+        itemReader.setResource(new ClassPathResource(filePath));
+        itemReader.setLinesToSkip(1);
+        itemReader.setRowMapper(bankTransactionRowMapper());
+
+        return itemReader;
     }
 
     @Bean
-    public LineMapper<BankTransaction> bankTransactionlineMapper() {
-        DefaultLineMapper<BankTransaction> lineMapper = new DefaultLineMapper<>();
+    public RowMapper<BankTransaction> bankTransactionRowMapper(){
 
-        DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
-        lineTokenizer.setDelimiter(";");
-        lineTokenizer.setStrict(false);
-        lineTokenizer.setNames("id", "accountID", "transactionDateStr", "transactionType", "amount");
+        BeanWrapperRowMapper<BankTransaction> rowMapper = new BeanWrapperRowMapper<>();
+        rowMapper.setTargetType(BankTransaction.class);
 
-        lineMapper.setLineTokenizer(lineTokenizer);
-
-        BeanWrapperFieldSetMapper<BankTransaction> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
-        fieldSetMapper.setTargetType(BankTransaction.class);
-
-        lineMapper.setFieldSetMapper(fieldSetMapper);
-
-        return lineMapper;
+        return rowMapper;
     }
 
     @Bean
