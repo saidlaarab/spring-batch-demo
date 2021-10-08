@@ -19,7 +19,7 @@ public class BankTransactionDataLoaderProcessor implements ItemProcessor<BankTra
         try{
             parsedDate = dateFormat.parse(dateStr);
         }catch(ParseException exc){
-            System.getLogger("Parsing Logger").log(System.Logger.Level.ERROR, "Cannot parse the string-based date !");
+            System.getLogger("Parsing Date Error").log(System.Logger.Level.ERROR, "Cannot parse the string-based date !");
         }
 
 

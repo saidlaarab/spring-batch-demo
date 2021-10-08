@@ -10,11 +10,18 @@ public class ExcelFileRowMapper implements RowMapper<BankTransaction> {
     public BankTransaction mapRow(RowSet rs) throws Exception {
         String[] currentRow = rs.getCurrentRow();
         BankTransaction bankTransaction = new BankTransaction();
-        bankTransaction.setId(Long.parseLong(currentRow[0]));
-        bankTransaction.setAccountID(Long.parseLong(currentRow[1]));
+
+        try{
+            bankTransaction.setId(Long.parseLong(currentRow[0]));
+            bankTransaction.setAccountID(Long.parseLong(currentRow[1]));
+            bankTransaction.setAmount(Double.parseDouble(currentRow[4]));
+        }catch( NumberFormatException exception){
+            System.getLogger("Number Format Error").log(System.Logger.Level.ERROR, "Cannot parse the string into a number!");
+        }
+
         bankTransaction.setTransactionDateStr(currentRow[2]);
         bankTransaction.setTranctionType(currentRow[3]);
-        bankTransaction.setAmount(Double.parseDouble(currentRow[4]));
+
 
         return bankTransaction;
     }
