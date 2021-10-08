@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,7 @@ public class SpringBatchConfig {
 
         // Second item reader, which keep just one row in memory at at time, which will not lead to memory leak in case of large excel files
         StreamingXlsxItemReader<BankTransaction> excelReader = new StreamingXlsxItemReader<>();
-        excelReader.setResource(new ClassPathResource(filePath));
+        excelReader.setResource(new FileSystemResource("C:\\Users\\Administrateur\\Documents\\GitHub\\spring-batch-demo\\src\\main\\resources\\data\\BANK_TRANSACTION.xlsx"));
         excelReader.setLinesToSkip(1);
         excelReader.setRowMapper(bankTransactionRowMapper());
 
