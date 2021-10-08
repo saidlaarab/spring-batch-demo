@@ -6,9 +6,13 @@ import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.extensions.excel.RowMapper;
 import org.springframework.batch.extensions.excel.mapping.BeanWrapperRowMapper;
+import org.springframework.batch.extensions.excel.mapping.PassThroughRowMapper;
 import org.springframework.batch.extensions.excel.poi.PoiItemReader;
+import org.springframework.batch.extensions.excel.streaming.StreamingXlsxItemReader;
+import org.springframework.batch.extensions.excel.support.rowset.RowSet;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -53,22 +57,31 @@ public class SpringBatchConfig {
 
     @Bean
     public ItemReader<BankTransaction> bankTransactionExcelFileItemReader(@Value("${input.file.path}") String filePath ){
-        PoiItemReader<BankTransaction> itemReader = new PoiItemReader<>();
+        // 1st item reader, which read the file at once which may lead memory leak.
+        PoiItemReader<BankTransaction> poiItemReader = new PoiItemReader<>();
+        poiItemReader.setResource(new ClassPathResource(filePath));
+        poiItemReader.setLinesToSkip(1);
+        poiItemReader.setRowMapper(bankTransactionRowMapper());
 
-        itemReader.setResource(new ClassPathResource(filePath));
-        itemReader.setLinesToSkip(1);
-        itemReader.setRowMapper(bankTransactionRowMapper());
+        // Second item reader, which keep just one row in memory at at time, which will not lead to memory leak in case of large excel files
+        StreamingXlsxItemReader<BankTransaction> excelReader = new StreamingXlsxItemReader<>();
+        excelReader.setResource(new ClassPathResource(filePath));
+        excelReader.setLinesToSkip(1);
+        excelReader.setRowMapper(bankTransactionRowMapper());
 
-        return itemReader;
+        return excelReader;
     }
 
     @Bean
-    public RowMapper<BankTransaction> bankTransactionRowMapper(){
+    public RowMapper bankTransactionRowMapper(){
+        // for first item reader : PoiItemReader
+        BeanWrapperRowMapper<BankTransaction> rowMapper1 = new BeanWrapperRowMapper<>();
+        rowMapper1.setTargetType(BankTransaction.class);
 
-        BeanWrapperRowMapper<BankTransaction> rowMapper = new BeanWrapperRowMapper<>();
-        rowMapper.setTargetType(BankTransaction.class);
+        // for second item reader : StreamingXlsxItemReader
+        RowMapper<BankTransaction> excelRowMapper = new ExcelFileRowMapper();
 
-        return rowMapper;
+        return excelRowMapper;
     }
 
     @Bean

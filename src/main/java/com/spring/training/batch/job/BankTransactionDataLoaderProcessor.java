@@ -4,6 +4,7 @@ import com.spring.training.batch.model.BankTransaction;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -13,8 +14,14 @@ public class BankTransactionDataLoaderProcessor implements ItemProcessor<BankTra
     public BankTransaction process(BankTransaction bankTransaction) throws Exception {
         String dateStr = bankTransaction.getTransactionDateStr();
 
+        Date parsedDate = null;
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy-HH:mm");
-        Date parsedDate = dateFormat.parse(dateStr);
+        try{
+            parsedDate = dateFormat.parse(dateStr);
+        }catch(ParseException exc){
+            System.getLogger("Parsing Logger").log(System.Logger.Level.ERROR, "Cannot parse the string-based date !");
+        }
+
 
         bankTransaction.setTransactionDate(parsedDate);
 

@@ -16,6 +16,6 @@ public class BankTransactionWriter implements ItemWriter<BankTransaction> {
 
     @Override
     public void write(List<? extends BankTransaction> list) throws Exception {
-        repository.saveAll(list);
+          repository.saveAll(list);
     }
 }
